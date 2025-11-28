@@ -14,6 +14,7 @@ from sqlalchemy import (
     Integer,
     Numeric,
     ForeignKey,
+    Boolean,
 )
 from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB, ARRAY
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker, Session
@@ -23,7 +24,7 @@ from sqlalchemy.orm import declarative_base, relationship, sessionmaker, Session
 # ---------------------------------------------------------------------
 
 # 👇 Replace with your Neon URL
-DATABASE_URL = ""
+DATABASE_URL = "postgresql://neondb_owner:npg_0DuGvNZOK2AL@ep-raspy-voice-adgxwy8e-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
 engine = create_engine(DATABASE_URL, echo=False)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
@@ -218,7 +219,9 @@ class LendingOffer(Base):
     origination_fee = Column(Numeric)
     tenor_months = Column(Integer)
     repayment_terms = Column(Text)
-    collateral_required = Column(Integer)  # store as 0/1
+    collateral_required = Column(
+        Boolean, nullable=False, default=False
+    )  # 👈 change this
     notes = Column(Text)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
@@ -869,7 +872,7 @@ def generate_credit_line_offers(
         origination_fee=0.01,
         tenor_months=None,
         repayment_terms="REVOLVING",
-        collateral_required=0,
+        collateral_required=False,
         notes="Based on your revenue and bureau data.",
     )
     db.add(offer)
